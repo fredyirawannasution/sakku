@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Aplikasi Keuangan</title>
+  <style>
+    :root{
+      --bg:#f3f6fb;
+      --card:#ffffff;
+      --text:#101828;
+      --muted:#667085;
+      --line:#e4e7ec;
+      --primary:#2563eb;
+      --danger:#d92d20;
+      --shadow:0 18px 45px rgba(16,24,40,.12);
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    *{box-sizing:border-box}
+    html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
+    body{position:fixed;inset:0}
+    .app-shell{position:fixed;inset:0;display:grid;background:var(--bg)}
+    .frame{width:100%;height:100%;border:0;display:block;background:#fff}
+    .loading,.error{position:fixed;inset:0;display:grid;place-items:center;padding:18px;background:linear-gradient(135deg,#eff6ff,#f8fafc);z-index:5}
+    .card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow);text-align:center}
+    .logo{width:54px;height:54px;border-radius:18px;background:var(--primary);display:grid;place-items:center;color:#fff;font-weight:950;margin:0 auto 14px;font-size:18px}
+    h1{font-size:20px;margin:0 0 8px}.muted{font-size:13px;color:var(--muted);line-height:1.5;margin:0}.spinner{width:38px;height:38px;border:5px solid #dbeafe;border-top-color:var(--primary);border-radius:50%;animation:spin .75s linear infinite;margin:16px auto 0}@keyframes spin{to{transform:rotate(360deg)}}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;border-radius:14px;padding:12px 16px;background:var(--primary);color:#fff;text-decoration:none;font-weight:900;margin-top:14px;border:0;cursor:pointer;width:100%}
+    .btn-lite{background:#eef4ff;color:var(--primary)}
+    .code{font-size:12px;background:#f2f4f7;border:1px solid var(--line);padding:10px;border-radius:12px;word-break:break-all;text-align:left;margin-top:12px;color:#344054}
+    .hide{display:none!important}
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <iframe id="appFrame" class="frame" title="Aplikasi Keuangan" allow="clipboard-read; clipboard-write; notifications"></iframe>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="card">
+      <div class="logo">Rp</div>
+      <h1>Membuka Aplikasi</h1>
+      <p class="muted">Menghubungkan ke Google Apps Script Web App.</p>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <div id="error" class="error hide">
+    <div class="card">
+      <div class="logo">!</div>
+      <h1>URL /exec belum diisi</h1>
+      <p class="muted">Buka file ini di GitHub, lalu ganti isi <b>APPS_SCRIPT_EXEC_URL</b> dengan URL Web App Google Apps Script yang berakhiran <b>/exec</b>.</p>
+      <div class="code">const APPS_SCRIPT_EXEC_URL = 'TEMPEL_URL_EXEC_APPS_SCRIPT_DI_SINI';</div>
+      <button class="btn btn-lite" onclick="location.reload()">Muat Ulang</button>
+    </div>
+  </div>
+
+  <script>
+    /*
+      CARA PAKAI:
+      1. Deploy Google Apps Script sebagai Web App.
+      2. Copy URL yang berakhiran /exec.
+      3. Tempel di bawah ini.
+      4. Upload file ini ke GitHub sebagai index.html.
+      5. Hubungkan repo GitHub ke Cloudflare Pages.
+    */
+
+    const APPS_SCRIPT_EXEC_URL = 'TEMPEL_URL_EXEC_APPS_SCRIPT_DI_SINI';
+
+    const frame = document.getElementById('appFrame');
+    const loading = document.getElementById('loading');
+    const errorBox = document.getElementById('error');
+
+    function isValidExecUrl(url){
+      return /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec(\?.*)?$/.test(String(url || '').trim());
+    }
+
+    function start(){
+      const url = String(APPS_SCRIPT_EXEC_URL || '').trim();
+      if (!isValidExecUrl(url)) {
+        loading.classList.add('hide');
+        errorBox.classList.remove('hide');
+        return;
+      }
+
+      const noCacheUrl = url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now();
+      frame.src = noCacheUrl;
+
+      frame.addEventListener('load', () => {
+        setTimeout(() => loading.classList.add('hide'), 250);
+      });
+
+      setTimeout(() => {
+        loading.classList.add('hide');
+      }, 6000);
+    }
+
+    start();
+  </script>
+</body>
+</html>
